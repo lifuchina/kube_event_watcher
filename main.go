@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-**/
+*/
 
 package main
 
@@ -48,7 +48,7 @@ var (
 
 	inCluster = flags.Bool("in-cluster", true, `If true, use the built in kubernetes cluster for creating the client`)
 
-	apiserver = flags.String("apiserver", "", `The URL of the apiserver to use as a master`)
+//	apiserver = flags.String("apiserver", "", `The URL of the apiserver to use as a master`)
 
 	kubeconfig = flags.String("kubeconfig", "./config", "absolute path to the kubeconfig file")
 
@@ -77,10 +77,10 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *apiserver == "" && !(*inCluster) {
-		log.Fatal("--apiserver not set and --in-cluster is false; apiserver must be set to a valid URL")
-	}
-	log.Println("apiServer set to: %v", *apiserver)
+//	if *apiserver == "" && !(*inCluster) {
+//		log.Fatal("--apiserver not set and --in-cluster is false; apiserver must be set to a valid URL")
+//	}
+//	log.Println("apiServer set to: %v", *apiserver)
 
 	proc.StartReaper()
 
@@ -102,9 +102,9 @@ func createKubeClient() (kubeClient clientset.Interface, err error) {
 		}
 		// Allow overriding of apiserver even if using inClusterConfig
 		// (necessary if kube-proxy isn't properly set up).
-		if *apiserver != "" {
-			config.Host = *apiserver
-		}
+	//	if *apiserver != "" {
+	//		config.Host = *apiserver
+	//	}
 		tokenPresent := false
 		if len(config.BearerToken) > 0 {
 			tokenPresent = true
@@ -121,13 +121,13 @@ func createKubeClient() (kubeClient clientset.Interface, err error) {
 		// if you want to change override values or bind them to flags, there are methods to help you
 		// kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
 		// config, err := kubeConfig.ClientConfig()
-		// config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-		config, err := clientcmd.DefaultClientConfig.ClientConfig()
+		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		// config, err := clientcmd.DefaultClientConfig.ClientConfig()
 		if err != nil {
 			return nil, err
 		}
 		// add host here
-		config.Host = *apiserver
+		//config.Host = *apiserver
 		kubeClient, err = clientset.NewForConfig(config)
 		if err != nil {
 			return nil, err
@@ -167,7 +167,7 @@ func (*eventController) addEvent(obj interface{}) {
 		reportEvent(*domeosServer, DomeosEvent{
 			K8sEvent:   *event,
 			ClusterId:  *clusterId,
-			ClusterApi: *apiserver,
+			ClusterApi: "",
 			Type:       "add",
 		})
 	}
@@ -179,7 +179,7 @@ func (*eventController) updateEvent(old, cur interface{}) {
 		reportEvent(*domeosServer, DomeosEvent{
 			K8sEvent:   *event,
 			ClusterId:  *clusterId,
-			ClusterApi: *apiserver,
+			ClusterApi: "",
 			Type:       "update",
 		})
 	}
@@ -191,7 +191,7 @@ func (*eventController) deleteEvent(obj interface{}) {
 		reportEvent(*domeosServer, DomeosEvent{
 			K8sEvent:   *event,
 			ClusterId:  *clusterId,
-			ClusterApi: *apiserver,
+			ClusterApi: "",
 			Type:       "delete",
 		})
 	}

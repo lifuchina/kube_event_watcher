@@ -1,9 +1,6 @@
-FROM alpine:3.5
+FROM registry.trcloud.org:5000/nginx:1.9
 
-RUN apk add --no-cache bash && \ 
-    apk add --no-cache ca-certificates && \ 
-    apk add --no-cache tzdata && \
-    rm /etc/localtime && \
+RUN rm /etc/localtime && \
     ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 COPY kube_event_watcher /
 VOLUME /tmp
@@ -11,4 +8,3 @@ VOLUME /tmp
 ENTRYPOINT ["/kube_event_watcher"]
 
 EXPOSE 80 8080
-
