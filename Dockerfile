@@ -11,3 +11,4 @@ VOLUME /tmp
 ENTRYPOINT ["/kube_event_watcher"]
 
 EXPOSE 80 8080
+
