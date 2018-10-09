@@ -48,7 +48,7 @@ var (
 
 	inCluster = flags.Bool("in-cluster", true, `If true, use the built in kubernetes cluster for creating the client`)
 
-//	apiserver = flags.String("apiserver", "", `The URL of the apiserver to use as a master`)
+	apiserver = flags.String("apiserver", "", `The URL of the apiserver to use as a master`)
 
 	kubeconfig = flags.String("kubeconfig", "./config", "absolute path to the kubeconfig file")
 
@@ -77,10 +77,10 @@ func main() {
 		os.Exit(0)
 	}
 
-//	if *apiserver == "" && !(*inCluster) {
-//		log.Fatal("--apiserver not set and --in-cluster is false; apiserver must be set to a valid URL")
-//	}
-//	log.Println("apiServer set to: %v", *apiserver)
+	if *kubeconfig == "" && *apiserver == "" && !(*inCluster) {
+		log.Fatal("--apiserver not set and --in-cluster is false; apiserver must be set to a valid URL")
+	}
+	log.Println("apiServer set to: %v", *apiserver)
 
 	proc.StartReaper()
 
@@ -120,9 +120,14 @@ func createKubeClient() (kubeClient clientset.Interface, err error) {
 		// configOverrides := &clientcmd.ConfigOverrides{}
 		// if you want to change override values or bind them to flags, there are methods to help you
 		// kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
-		// config, err := kubeConfig.ClientConfig()
-		config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-		// config, err := clientcmd.DefaultClientConfig.ClientConfig()
+		// config, err := kubeConfig.ClientConfig()i
+
+		config, err := clientcmd.DefaultClientConfig.ClientConfig()
+		if *kubeconfig != "" && *apiserver == "" {
+			config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
+		} else {
+			config.Host = *apiserver
+		}
 		if err != nil {
 			return nil, err
 		}
